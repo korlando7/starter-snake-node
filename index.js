@@ -17,7 +17,7 @@ app.listen(PORT, () => console.log(`Battlesnake Server listening at http://127.0
 function handleIndex(request, response) {
   var battlesnakeInfo = {
     apiversion: '1',
-    author: '',
+    author: 'korlando7',
     color: '#888888',
     head: 'default',
     tail: 'default'
@@ -34,6 +34,9 @@ function handleStart(request, response) {
 
 function handleMove(request, response) {
   var gameData = request.body
+  console.log(gameData)
+
+  console.log(gameData.board.food)
 
   var possibleMoves = ['up', 'down', 'left', 'right']
   var move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
