@@ -61,3 +61,32 @@ export const getPossibleDirections = (currentSnake: Snake): Directions => {
 	  'left': { x: x - 1, y }
 	}
   }
+
+export const pointInBounds = (
+	position: Point,
+	boardW: number,
+	boardH: number
+): boolean => {
+	const { x, y } = position
+
+	if ((x >= 0 && x < boardW) &&
+	    (y >= 0 && y < boardH)) {
+			return true
+	}
+
+	return false
+}
+
+export const removeOutOfBoundsDirs = (
+	possibleDirections: Directions,
+	boardW: number,
+	boardH: number
+) => {
+	Object.keys(possibleDirections).forEach(dir => {
+		var point = possibleDirections[dir]
+
+		if (!pointInBounds(point, boardW, boardH)) {
+			delete possibleDirections[dir]
+		}
+	})
+}

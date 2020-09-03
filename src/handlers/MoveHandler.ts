@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { BattleSnakeRequest, BattleSnakeResponse, Directions, Move, Point } from '../definitions/requestTypes'
-import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString } from '../utils/positionUtil'
+import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString, removeOutOfBoundsDirs } from '../utils/positionUtil'
 
 
 export const handleMove = (request: Request, response: Response) => {
@@ -8,7 +8,6 @@ export const handleMove = (request: Request, response: Response) => {
   let move: Move = 'up'
 
   const possibleCollisions = getPossibleCollisions(gameData)
-  console.log(possibleCollisions)
 
   const possibleCollPointSet = getPointSet(possibleCollisions)
   const possibleDirections = getPossibleDirections(gameData.you)
@@ -22,17 +21,17 @@ export const handleMove = (request: Request, response: Response) => {
     }
   })
 
-  console.log(possibleDirections)
+  removeOutOfBoundsDirs(possibleDirections, gameData.board.width, gameData.board.height)
 
   // get optimal direction
+  // TODO: move to position with most available space and food?
+  // TODO: find closet food
 
   const availableMoves = Object.keys(possibleDirections) as Move[]
 
   if (availableMoves.length) {
     move = availableMoves[Math.floor(Math.random() * availableMoves.length)]
   }
-
-  console.log(move)
 
   const res: BattleSnakeResponse = {
     move,
