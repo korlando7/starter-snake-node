@@ -5,16 +5,18 @@ import { BattleSnakeRequest, BattleSnakeResponse } from '../types/requestTypes'
 export const handleMove = (request: Request, response: Response) => {
   var gameData = request.body as BattleSnakeRequest
 
-  var possibleMoves = ['up', 'down', 'left', 'right']
+  const { hazards, body, snakes } = gameData
 
-  // check if head is going to hit the board width
-  // 
-  // you.head.x or .y
-  // 
-  var move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
+  const possibleCollisions = [
+	...hazards,
+	...body,
+	...snakes.map(snake => snake.body)
+  ]
 
-  console.log('MOVE: ' + move)
+  console.log(possibleCollisions);
+
+
   response.status(200).send({
-    move: move
+    move: 'down'
   })
 }
