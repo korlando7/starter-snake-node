@@ -27,7 +27,11 @@ export interface Game {
 	timeout: number;
 }
 
-export type move = 'up' | 'right' | 'left' | 'down'
+export type Move = 'up' | 'right' | 'left' | 'down'
+
+export interface Directions {
+	[direction: string]: Point
+}
 
 export interface BattleSnakeRequest {
 	game: Game;
@@ -37,6 +41,6 @@ export interface BattleSnakeRequest {
 }
 
 export interface BattleSnakeResponse {
-	move: move;
-	shout: string;
+	move: Move;
+	shout?: string;
 }

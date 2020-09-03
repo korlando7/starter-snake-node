@@ -1,4 +1,4 @@
-import { Point } from '../types/requestTypes'
+import { Point, Snake, Directions, BattleSnakeRequest } from '../definitions/requestTypes'
 
 export const getPointSet = (points: Point[]): Set<string> => {
 	const result: Set<string> = new Set()
@@ -8,7 +8,7 @@ export const getPointSet = (points: Point[]): Set<string> => {
 	}
 
 	points.forEach((point: Point) => {
-		result.add(`${point.x}:${point.y}`)
+		result.add(getPointString(point))
 	})
 
 	return result
@@ -16,6 +16,10 @@ export const getPointSet = (points: Point[]): Set<string> => {
 
 export const createPoint = (x: number, y: number): Point => {
 	return { x, y }
+}
+
+export const getPointString = (point: Point) => {
+	return `${point.x}:${point.y}`
 }
 
 export const checkForCollision = (
@@ -28,3 +32,32 @@ export const checkForCollision = (
 
 	return false
 }
+
+export const getPossibleCollisions = (data: BattleSnakeRequest): Point[] => {
+	const { board, you } = data
+	const { hazards, snakes } = board
+	const { body } = you
+  
+	let possibleCollisions = [
+	  ...hazards,
+	  ...body,
+	]
+  
+	snakes.forEach((snake: Snake) => {
+	  possibleCollisions = [...possibleCollisions, ...snake.body]
+	})
+  
+	return possibleCollisions
+  }
+
+export const getPossibleDirections = (currentSnake: Snake): Directions => {
+	const { head } = currentSnake
+	const { x, y } = head
+  
+	return {
+	  'up': { x, y: y + 1},
+	  'down': { x, y: y - 1},
+	  'right': { x: x + 1, y },
+	  'left': { x: x - 1, y }
+	}
+  }

@@ -1,22 +1,43 @@
 import { Request, Response } from 'express'
-import { BattleSnakeRequest, BattleSnakeResponse } from '../types/requestTypes'
+import { BattleSnakeRequest, BattleSnakeResponse, Directions, Move, Point } from '../definitions/requestTypes'
+import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString } from '../utils/positionUtil'
 
 
 export const handleMove = (request: Request, response: Response) => {
-  var gameData = request.body as BattleSnakeRequest
+  const gameData = request.body as BattleSnakeRequest
+  let move: Move = 'up'
 
-  const { hazards, body, snakes } = gameData
+  const possibleCollisions = getPossibleCollisions(gameData)
+  console.log(possibleCollisions)
 
-  const possibleCollisions = [
-	...hazards,
-	...body,
-	...snakes.map(snake => snake.body)
-  ]
+  const possibleCollPointSet = getPointSet(possibleCollisions)
+  const possibleDirections = getPossibleDirections(gameData.you)
 
-  console.log(possibleCollisions);
+  Object.keys(possibleDirections).forEach((dir: string) => {
+    const point: Point = possibleDirections[dir]
+    const pointStr = getPointString(point)
 
-
-  response.status(200).send({
-    move: 'down'
+    if (possibleCollPointSet.has(pointStr)) {
+      delete possibleDirections[dir]
+    }
   })
+
+  console.log(possibleDirections)
+
+  // get optimal direction
+
+  const availableMoves = Object.keys(possibleDirections) as Move[]
+
+  if (availableMoves.length) {
+    move = availableMoves[Math.floor(Math.random() * availableMoves.length)]
+  }
+
+  console.log(move)
+
+  const res: BattleSnakeResponse = {
+    move,
+  }
+
+  response.status(200).send(res)
 }
+
