@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import { BattleSnakeRequest, BattleSnakeResponse, Directions, Move, Point, Snake } from '../definitions/requestTypes'
-import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString, removeOutOfBoundsDirs, getBoardHazards, removeInvalidMoves } from '../utils/positionUtil'
+import { BattleSnakeRequest, BattleSnakeResponse, Directions, Move, Point } from '../definitions/requestTypes'
+import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString, removeOutOfBoundsDirs, removeInvalidMoves, getBoardHazards } from '../utils/positionUtil'
 
 
 export const handleMove = (request: Request, response: Response) => {
