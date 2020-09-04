@@ -5,6 +5,7 @@ import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointStri
 
 export const handleMove = (request: Request, response: Response) => {
 	const gameData = request.body as BattleSnakeRequest
+
 	let move: Move = 'up'
 
 	if (!gameData || !gameData.you || !gameData.board) {
@@ -12,18 +13,7 @@ export const handleMove = (request: Request, response: Response) => {
 		return
 	}
 
-	console.log(JSON.stringify(gameData.you))
-
-	const possibleCollisions = getPossibleCollisions(gameData)
-	const possibleDirections = getPossibleDirections(gameData.you.head)
-
-	removeInvalidMoves(gameData.board, possibleDirections, possibleCollisions)
-
-	const availableMoves = Object.keys(possibleDirections) as Move[]
-
-	if (availableMoves.length) {
-		move = availableMoves[Math.floor(Math.random() * availableMoves.length)]
-	}
+	findBestMoves(gameData)
 
 	const res: BattleSnakeResponse = {
 		move,
@@ -58,8 +48,15 @@ export const findBestMoves = (gameData: BattleSnakeRequest) => {
 			availableMoves.forEach(move => {
 				const nextPos = dirs[move]
 				const updatedSnake = [nextPos, ...snakeBody]
+
+				updatedSnake.pop()
+
+				const dir = moveCount > 0 ? originalDir : move;
+				find(updatedSnake, dir, moveCount + 1)
 			})
 		}
 
 	}
+
+	find(body, '', 0)
 }
