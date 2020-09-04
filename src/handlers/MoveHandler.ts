@@ -1,19 +1,17 @@
 import { Request, Response } from 'express'
-import { BattleSnakeRequest, BattleSnakeResponse, Directions, Move, Point, Snake } from '../definitions/requestTypes'
-import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString, removeOutOfBoundsDirs, getBoardHazards, removeInvalidMoves } from '../utils/positionUtil'
+import { BattleSnakeRequest, BattleSnakeResponse, Directions, Move, Point } from '../definitions/requestTypes'
+import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString, removeOutOfBoundsDirs, removeInvalidMoves, getBoardHazards } from '../utils/positionUtil'
 
 
 export const handleMove = (request: Request, response: Response) => {
 	const gameData = request.body as BattleSnakeRequest
-	console.log(JSON.stringify(gameData))
+
 	let move: Move = 'up'
 
 	if (!gameData || !gameData.you || !gameData.board) {
 		response.status(200).send('Missing Data')
 		return
 	}
-
-	// console.log(JSON.stringify(gameData.you))
 
 	findBestMoves(gameData)
 
@@ -33,11 +31,6 @@ export const findBestMoves = (gameData: BattleSnakeRequest) => {
 
 
 	const find = (snakeBody: Point[], originalDir: string, moveCount: number) => {
-
-		if (moveCount >= 10) {
-			// return position or move?
-			return
-		}
 		let currPos = snakeBody[0]
 
 		const snakeHazards = hazards
@@ -55,6 +48,7 @@ export const findBestMoves = (gameData: BattleSnakeRequest) => {
 			availableMoves.forEach(move => {
 				const nextPos = dirs[move]
 				const updatedSnake = [nextPos, ...snakeBody]
+
 				updatedSnake.pop()
 
 				const dir = moveCount > 0 ? originalDir : move;
