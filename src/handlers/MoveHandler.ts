@@ -5,6 +5,7 @@ import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointStri
 
 export const handleMove = (request: Request, response: Response) => {
 	const gameData = request.body as BattleSnakeRequest
+	// console.log(JSON.stringify(gameData))
 
 	let move;
 
@@ -14,6 +15,7 @@ export const handleMove = (request: Request, response: Response) => {
 	}
 
 	const moves = findBestMoves(gameData)
+	// console.log(moves)
 
 	move = getBestMove(moves)
 
@@ -28,13 +30,14 @@ export const handleMove = (request: Request, response: Response) => {
 export const findBestMoves = (gameData: BattleSnakeRequest): { [move: string]: number } => {
 	const hazards = getBoardHazards(gameData)
 	const { board, you } = gameData
-	const { width, height } = board
+	const { width, height, food } = board
 	const { body } = you
 	const bestMoves: { [move: string]: number } = {}
+	const foodPoints = getPointSet(food)
 
 	const find = (snakeBody: Point[], originalDir: string, moveCount: number) => {
 
-		if (moveCount >= 10) {
+		if (moveCount >= width) {
 			const currentCount = bestMoves[originalDir]
 			bestMoves[originalDir] = currentCount ? currentCount + 1 : 1
 			return
@@ -57,10 +60,28 @@ export const findBestMoves = (gameData: BattleSnakeRequest): { [move: string]: n
 			availableMoves.forEach(move => {
 				const nextPos = dirs[move]
 				const updatedSnake = [nextPos, ...snakeBody]
+				const tail = updatedSnake[updatedSnake.length - 1]
 
 				updatedSnake.pop()
 
 				const dir = moveCount > 0 ? originalDir : move;
+
+				bestMoves[dir] = bestMoves[dir] ? bestMoves[dir] : 0
+				const nextPosStr = getPointString(nextPos)
+
+				// score next possible move, wip
+				const disFromTail = Math.abs(nextPos.x - tail.x) + Math.abs(nextPos.y - tail.y)
+				bestMoves[dir] += disFromTail
+
+				if (foodPoints.has(nextPosStr)) {
+
+					bestMoves[dir]++
+				}
+
+				if (snakeHazards.has(nextPosStr)) {
+					bestMoves[dir]--
+				}
+
 				find(updatedSnake, dir, moveCount + 1)
 			})
 		}
@@ -84,4 +105,8 @@ const getBestMove = (bestMoves: { [move: string]: number }): string | null => {
 	})
 
 	return bestMove;
+}
+
+const scoreNextMove = () => {
+
 }
