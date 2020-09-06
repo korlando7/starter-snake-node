@@ -1,19 +1,21 @@
 import { Request, Response } from 'express'
-import { BattleSnakeRequest, BattleSnakeResponse, Directions, Move, Point } from '../definitions/requestTypes'
+import { BattleSnakeRequest, BattleSnakeResponse, Directions, Point } from '../definitions/requestTypes'
 import { getPointSet, getPossibleCollisions, getPossibleDirections, getPointString, removeOutOfBoundsDirs, removeInvalidMoves, getBoardHazards } from '../utils/positionUtil'
 
 
 export const handleMove = (request: Request, response: Response) => {
 	const gameData = request.body as BattleSnakeRequest
 
-	let move: Move = 'up'
+	let move;
 
 	if (!gameData || !gameData.you || !gameData.board) {
 		response.status(200).send('Missing Data')
 		return
 	}
 
-	findBestMoves(gameData)
+	const moves = findBestMoves(gameData)
+
+	move = getBestMove(moves)
 
 	const res: BattleSnakeResponse = {
 		move,
@@ -23,14 +25,21 @@ export const handleMove = (request: Request, response: Response) => {
 }
 
 
-export const findBestMoves = (gameData: BattleSnakeRequest) => {
+export const findBestMoves = (gameData: BattleSnakeRequest): { [move: string]: number } => {
 	const hazards = getBoardHazards(gameData)
 	const { board, you } = gameData
 	const { width, height } = board
 	const { body } = you
-
+	const bestMoves: { [move: string]: number } = {}
 
 	const find = (snakeBody: Point[], originalDir: string, moveCount: number) => {
+
+		if (moveCount >= 10) {
+			const currentCount = bestMoves[originalDir]
+			bestMoves[originalDir] = currentCount ? currentCount + 1 : 1
+			return
+		}
+
 		let currPos = snakeBody[0]
 
 		const snakeHazards = hazards
@@ -42,7 +51,7 @@ export const findBestMoves = (gameData: BattleSnakeRequest) => {
 		const dirs = getPossibleDirections(currPos)
 		removeInvalidMoves(gameData.board, dirs, snakeHazards)
 
-		const availableMoves = Object.keys(dirs) as Move[]
+		const availableMoves = Object.keys(dirs) as string[]
 
 		if (availableMoves.length) {
 			availableMoves.forEach(move => {
@@ -59,4 +68,20 @@ export const findBestMoves = (gameData: BattleSnakeRequest) => {
 	}
 
 	find(body, '', 0)
+
+	return bestMoves;
+}
+
+const getBestMove = (bestMoves: { [move: string]: number }): string | null => {
+	let bestMove = null;
+	let max = 0
+
+	Object.keys(bestMoves).forEach(move => {
+		if (bestMoves[move] > max) {
+			max = bestMoves[move]
+			bestMove = move;
+		}
+	})
+
+	return bestMove;
 }

@@ -27,8 +27,6 @@ export interface Game {
 	timeout: number;
 }
 
-export type Move = 'up' | 'right' | 'left' | 'down'
-
 export interface Directions {
 	[direction: string]: Point
 }
